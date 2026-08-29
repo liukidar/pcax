@@ -303,6 +303,7 @@ def test_a_get_rule_reflects_a_new_value_after_the_cache_is_cleared():
     assert_allclose(vode.get("e"), 2.0 * (H + 1.0))
 
 
+@pytest.mark.filterwarnings("ignore:Multiple output rules matched")
 def test_only_the_first_matching_output_rule_is_applied():
     """`Ruleset` documents that "if multiple output rules match the current status and
     operation, only the first one is executed".
@@ -317,19 +318,15 @@ def test_only_the_first_matching_output_rule_is_applied():
     assert_allclose(vode.get("e"), 2.0 * H)
 
 
-@pytest.mark.bug(
-    "#79: Vode.get print()s 'WARNING: Multiple output rules matched...' to stdout instead of calling warnings.warn "
-    "(the source carries a '# TODO: use warnings')"
-)
 def test_multiple_matching_output_rules_report_through_the_warnings_module():
     """An ambiguous ruleset — two output rules matching one key — has to be reported
     as a real Python warning.
 
     A bare `print` cannot be filtered, captured, routed to a log, or promoted to an
     error with `-W error`, so a CI run cannot fail on it and a notebook user scrolls
-    past it. Worse, the message is emitted while a `jit`ted step is being *traced*:
-    it appears once, at compile time, detached from the step it belongs to, and never
-    again for the thousands of steps that follow.
+    past it. Worse, it would be emitted while a `jit`ted step is being *traced*: it
+    would appear once, at compile time, detached from the step it belongs to, and
+    never again for the thousands of steps that follow.
 
     Meanwhile the effect it warns about is silent data loss — one of the two rules is
     discarded — so this is precisely the situation that warrants a `UserWarning` the

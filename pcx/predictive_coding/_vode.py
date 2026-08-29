@@ -5,6 +5,7 @@ __all__ = [
 ]
 
 import re
+import warnings
 from collections.abc import Callable, Sequence
 from typing import Any
 
@@ -292,9 +293,12 @@ class Vode(EnergyModule):
             else:
                 return self.cache.get(key, default)
         else:
-            # TODO: use warnings
             if len(_rules) > 1:
-                print(f"WARNING: Multiple output rules matched for key '{key}' in status '{self.status}'.")
+                warnings.warn(
+                    f"Multiple output rules matched for key '{key}' in status '{self.status}', "
+                    "only the first is applied.",
+                    stacklevel=2,
+                )
             (_target, _tform) = _rules[0]
 
             _value = self.ruleset.apply_get_transformation(self, _tform, _target, rkg=rkg)
