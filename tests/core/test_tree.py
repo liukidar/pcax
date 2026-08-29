@@ -185,7 +185,12 @@ def test_ref_does_not_disturb_the_values():
 
 def test_extract_yields_one_entry_per_dynamic_param_in_traversal_order():
     """`extract`/`inject` are a positional protocol — the two must agree on the
-    sequence, so extraction has to be deterministic and skip statics."""
+    sequence, so extraction has to be deterministic and skip statics.
+
+    A module flattens by sorted attribute name, deliberately, so that its structure
+    does not depend on the order a constructor happened to assign in. `Leafy` assigns
+    `w` then `b`, so `b` is extracted first.
+    """
     m = Leafy()
     m.w.set(jnp.array([1.0, 2.0]))
     m.b.set(jnp.array([3.0, 4.0]))
@@ -193,8 +198,8 @@ def test_extract_yields_one_entry_per_dynamic_param_in_traversal_order():
     extracted = tree_extract(m, is_pytree=True)
 
     assert len(extracted) == 2
-    assert_allclose(extracted[0].get(), jnp.array([1.0, 2.0]))
-    assert_allclose(extracted[1].get(), jnp.array([3.0, 4.0]))
+    assert_allclose(extracted[0].get(), jnp.array([3.0, 4.0]))
+    assert_allclose(extracted[1].get(), jnp.array([1.0, 2.0]))
 
 
 def test_extract_then_inject_transfers_values_in_order():

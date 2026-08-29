@@ -134,7 +134,6 @@ def test_tree_map_across_two_instances_works():
     assert_allclose(summed.w.get(), jnp.full((3,), 2.0))
 
 
-@pytest.mark.bug("#76: Module treedefs use __dict__ insertion order, so assignment order changes the structure")
 def test_attribute_assignment_order_does_not_change_the_treedef():
     """A module is documented to be "flattened as if it were a dictionary", and a
     dictionary in jax is order-insensitive — `tree_structure({"a": 1, "b": 2})`

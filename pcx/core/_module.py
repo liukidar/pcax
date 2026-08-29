@@ -65,15 +65,20 @@ class _BaseModuleMeta(abc.ABCMeta):
 
     @staticmethod
     def flatten_module(module: "BaseModule") -> tuple[tuple[Any, ...], tuple[str, ...]]:
-        return tuple(module.__dict__.values()), tuple(module.__dict__.keys())
+        # Keys are sorted, as jax does for dictionaries, so that the structure does not depend on assignment order.
+        _keys = tuple(sorted(module.__dict__))
+
+        return tuple(module.__dict__[k] for k in _keys), _keys
 
     @staticmethod
     def flatten_module_with_keys(
         module: "BaseModule",
     ) -> tuple[tuple[tuple[str, Any], ...], tuple[str, ...]]:
+        _keys = tuple(sorted(module.__dict__))
+
         return (
-            tuple((jtu.GetAttrKey(k), v) for k, v in module.__dict__.items()),
-            tuple(module.__dict__.keys()),
+            tuple((jtu.GetAttrKey(k), module.__dict__[k]) for k in _keys),
+            _keys,
         )
 
     @staticmethod
